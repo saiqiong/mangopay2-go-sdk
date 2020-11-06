@@ -45,8 +45,8 @@ const (
 
 // Base URLs to execution environements
 var rootURLs = map[ExecEnvironment]string{
-	Production: "https://api.mangopay.com/v2/",
-	Sandbox:    "https://api.sandbox.mangopay.com/v2/",
+	Production: "https://api.mangopay.com/v2.01/",
+	Sandbox:    "https://api.sandbox.mangopay.com/v2.01/",
 }
 
 // The default HTTP client to use with the MangoPay api.

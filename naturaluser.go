@@ -12,7 +12,7 @@ import (
 type NaturalUser struct {
 	User
 	FirstName, LastName string
-	Address             string
+	Address             map[string]string
 	Birthday            int64
 	Nationality         string
 	CountryOfResidence  string
@@ -20,6 +20,7 @@ type NaturalUser struct {
 	IncomeRange         int
 	ProofOfIdentity     string
 	ProofOfAddress      string
+	Capacity            string
 	service             *MangoPay // Current service
 	wallets             WalletList
 }
@@ -51,6 +52,12 @@ func (u *NaturalUser) Wallets() (WalletList, error) {
 // Transfer gets all user's transaction.
 func (u *NaturalUser) Transfers() (TransferList, error) {
 	trs, err := u.service.transfers(u)
+	return trs, err
+}
+
+// Transfer gets all user's transaction.
+func (u *NaturalUser) Transactions() (TransactionList, error) {
+	trs, err := u.service.transactions(u)
 	return trs, err
 }
 

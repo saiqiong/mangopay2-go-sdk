@@ -39,7 +39,31 @@ type Transfer struct {
 	service          *MangoPay
 }
 
+// List of transactions.
+type TransactionList []*Transaction
+
+// Transfer hold details about relocating e-money from a wallet
+// to another one.
+//
+// See http://docs.mangopay.com/api-references/transfers/.
+type Transaction struct {
+	ProcessReply
+	AuthorId         string
+	CreditedUserId   string
+	DebitedFunds     Money
+	Fees             Money
+	DebitedWalletId  string
+	CreditedWalletId string
+	CreditedFunds    Money
+	Type             string
+	service          *MangoPay
+}
+
 func (t *Transfer) String() string {
+	return struct2string(t)
+}
+
+func (t *Transaction) String() string {
 	return struct2string(t)
 }
 
@@ -151,4 +175,22 @@ func (m *MangoPay) transfers(u Consumer) (TransferList, error) {
 		return nil, err
 	}
 	return *(trs.(*TransferList)), nil
+}
+
+// Transfer finds all user's transactions. Provided for convenience.
+func (m *MangoPay) Transactions(user Consumer) (TransactionList, error) {
+	trs, err := m.transactions(user)
+	return trs, err
+}
+
+func (m *MangoPay) transactions(u Consumer) (TransactionList, error) {
+	id := consumerId(u)
+	if id == "" {
+		return nil, errors.New("user has empty Id")
+	}
+	trs, err := m.anyRequest(new(TransactionList), actionFetchUserTransfers, JsonObject{"Id": id})
+	if err != nil {
+		return nil, err
+	}
+	return *(trs.(*TransactionList)), nil
 }

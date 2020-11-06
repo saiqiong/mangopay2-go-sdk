@@ -9,6 +9,7 @@ type mangoAction int
 const (
 	actionEvents mangoAction = iota
 	actionAllUsers
+	actionAllUsersPaginated
 
 	actionCreateNaturalUser
 	actionEditNaturalUser
@@ -95,6 +96,11 @@ var mangoRequests = map[mangoAction]mangoRequest{
 		"GET",
 		"/users",
 		nil,
+	},
+	actionAllUsersPaginated: {
+		"GET",
+		"/users?page={{Page}}&per_page={{PerPage}}",
+		JsonObject{"Page": "1", "PerPage": "10"},
 	},
 	actionFetchNaturalUser: {
 		"GET",

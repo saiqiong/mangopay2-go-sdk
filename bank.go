@@ -43,7 +43,7 @@ type BankAccount struct {
 	ProcessIdent
 	Type         string // IBAN, GB, US, CA or OTHER
 	OwnerName    string
-	OwnerAddress string
+	OwnerAddress map[string]string
 	UserId       string
 	// Required for IBAN type
 	IBAN          string
@@ -76,7 +76,7 @@ func (b *BankAccount) String() string {
 // required) before a call to Save().
 //
 // See http://docs.mangopay.com/api-references/bank-accounts/
-func (m *MangoPay) NewBankAccount(user Consumer, ownerName, ownerAddress string, t AccountType) (*BankAccount, error) {
+func (m *MangoPay) NewBankAccount(user Consumer, ownerName string, ownerAddress map[string]string, t AccountType) (*BankAccount, error) {
 	id := consumerId(user)
 	if id == "" {
 		return nil, errors.New("user has empty Id")

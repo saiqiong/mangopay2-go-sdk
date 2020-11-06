@@ -31,6 +31,7 @@ type User struct {
 	ProcessIdent
 	PersonType string
 	Email      string
+	KYCLevel   string
 }
 
 func (u *User) String() string {
@@ -44,6 +45,23 @@ func (m *MangoPay) Users() (UserList, error) {
 	if err != nil {
 		return nil, err
 	}
+	ul := UserList{}
+	if err := m.unMarshalJSONResponse(resp, &ul); err != nil {
+		return nil, err
+	}
+	return ul, nil
+}
+
+// Users returns a list of all registered users, either natural
+// or legal.
+func (m *MangoPay) UsersPaginated(page, maxPerPage int) (UserList, error) {
+
+	resp, err := m.request(actionAllUsersPaginated, JsonObject{"Page": page, "PerPage": maxPerPage})
+
+	if err != nil {
+		return nil, err
+	}
+
 	ul := UserList{}
 	if err := m.unMarshalJSONResponse(resp, &ul); err != nil {
 		return nil, err
