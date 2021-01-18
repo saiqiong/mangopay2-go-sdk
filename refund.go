@@ -61,6 +61,10 @@ func (r *Refund) AddPayIn(payIn *PayIn) {
 	r.payIn = payIn
 }
 
+func (r *Refund) SetAsPayInRefund() {
+	r.kind = payInRefund
+}
+
 func (r *Refund) String() string {
 	return struct2string(r)
 }
