@@ -362,7 +362,11 @@ func (m *MangoPay) PayIn(id string) (*WebPayIn, error) {
 	if err != nil {
 		return nil, err
 	}
-	return p.(*WebPayIn), nil
+
+	payIn := p.(*WebPayIn)
+	payIn.service = m
+
+	return payIn, nil
 }
 
 func (m *MangoPay) NewBankwireDirectPayIn(author Consumer, credited *Wallet, amount, fees Money) (*BankwireDirectPayIn, error) {
