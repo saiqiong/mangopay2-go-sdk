@@ -244,7 +244,7 @@ func (m *MangoPay) NewDirectPayIn(from, to Consumer, src *Card, dst *Wallet, amo
 		return nil, errors.New(msg + "empty return url")
 	}
 
-	var	authorID, creditedUserID string
+	var authorID, creditedUserID string
 	authorID = consumerId(from)
 	if to != nil {
 		creditedUserID = consumerId(to)
@@ -328,6 +328,22 @@ func (p *PayIn) Refund() (*Refund, error) {
 		ProcessReply: ProcessReply{},
 		payIn:        p,
 		kind:         payInRefund,
+	}
+	if err := r.save(); err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+// PartialRefund allows to refund partially a pay-in. Call the PartialRefund's Save() method
+// to make a request to reimburse a user on his payment card.
+func (p *PayIn) PartialRefund(debitedFunds Money, fees Money) (*Refund, error) {
+	r := &Refund{
+		ProcessReply: ProcessReply{},
+		payIn:        p,
+		kind:         payInRefund,
+		DebitedFunds: debitedFunds,
+		Fees:         fees,
 	}
 	if err := r.save(); err != nil {
 		return nil, err
