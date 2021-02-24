@@ -337,9 +337,11 @@ func (p *PayIn) Refund() (*Refund, error) {
 
 // PartialRefund allows to refund partially a pay-in. Call the PartialRefund's Save() method
 // to make a request to reimburse a user on his payment card.
-func (p *PayIn) PartialRefund(debitedFunds Money, fees Money) (*Refund, error) {
+func (p *PayIn) PartialRefund(debitedFunds Money, fees Money, tag string) (*Refund, error) {
 	r := &Refund{
-		ProcessReply: ProcessReply{},
+		ProcessReply: ProcessReply{
+			ProcessIdent: ProcessIdent{Tag: tag},
+		},
 		payIn:        p,
 		kind:         payInRefund,
 		DebitedFunds: debitedFunds,
