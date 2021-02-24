@@ -78,7 +78,7 @@ func (r *Refund) save() error {
 	}
 
 	// Fields not allowed when creating a tranfer.
-	for _, field := range []string{"Id", "CreationDate", "ExecutionDate", "CreditedFunds", "CreditedUserId", "ResultCode", "ResultMessage", "Status", "Fees", "InitialTransactionType", "InitialTransactionId", "DebitedFunds", "Nature", "DebitedWalletId", "CreditedWalletId", "Type"} {
+	for _, field := range []string{"Id", "CreationDate", "ExecutionDate", "CreditedFunds", "CreditedUserId", "ResultCode", "ResultMessage", "Status", "InitialTransactionType", "InitialTransactionId", "Nature", "DebitedWalletId", "CreditedWalletId", "Type"} {
 		delete(data, field)
 	}
 
