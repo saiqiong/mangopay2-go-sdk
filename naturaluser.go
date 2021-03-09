@@ -64,7 +64,7 @@ func (u *NaturalUser) Transactions() (TransactionList, error) {
 // Save creates or updates a natural user. The Create API is used
 // if the user's Id is an empty string. The Edit API is used when
 // the Id is a non-empty string.
-func (u *NaturalUser) Save() error {
+func (u *NaturalUser) Save() (*RateLimitInfo, error) {
 	var action mangoAction
 	if u.Id == "" {
 		action = actionCreateNaturalUser
@@ -75,10 +75,10 @@ func (u *NaturalUser) Save() error {
 	data := JsonObject{}
 	j, err := json.Marshal(u)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := json.Unmarshal(j, &data); err != nil {
-		return err
+		return nil, err
 	}
 
 	// Force float64 to int conversion after unmarshalling.
@@ -114,23 +114,23 @@ func (u *NaturalUser) Save() error {
 		}
 	}
 
-	user, _, err := u.service.anyRequest(new(NaturalUser), action, data)
+	user, rateLimitInfo, err := u.service.anyRequest(new(NaturalUser), action, data)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	serv := u.service
 	*u = *(user.(*NaturalUser))
 	u.service = serv
-	return nil
+	return rateLimitInfo, nil
 }
 
 // NaturalUser finds a natural user using the user_id attribute.
-func (m *MangoPay) NaturalUser(id string) (*NaturalUser, error) {
-	u, _, err := m.anyRequest(new(NaturalUser), actionFetchNaturalUser, JsonObject{"Id": id})
+func (m *MangoPay) NaturalUser(id string) (*NaturalUser, *RateLimitInfo, error) {
+	u, rateLimitInfo, err := m.anyRequest(new(NaturalUser), actionFetchNaturalUser, JsonObject{"Id": id})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	nu := u.(*NaturalUser)
 	nu.service = m
-	return nu, nil
+	return nu, rateLimitInfo, nil
 }

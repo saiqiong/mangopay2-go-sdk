@@ -62,7 +62,7 @@ func (u *LegalUser) Transfers() (TransferList, error) {
 // Save creates or updates a legal user. The Create API is used
 // if the user's Id is an empty string. The Edit API is used when
 // the Id is a non-empty string.
-func (u *LegalUser) Save() error {
+func (u *LegalUser) Save() (*RateLimitInfo, error) {
 	var action mangoAction
 	if u.Id == "" {
 		action = actionCreateLegalUser
@@ -73,10 +73,10 @@ func (u *LegalUser) Save() error {
 	data := JsonObject{}
 	j, err := json.Marshal(u)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := json.Unmarshal(j, &data); err != nil {
-		return err
+		return nil, err
 	}
 
 	// Force float64 to int conversion after unmarshalling.
@@ -107,24 +107,24 @@ func (u *LegalUser) Save() error {
 		}
 	}
 
-	ins, _, err := u.service.anyRequest(new(LegalUser), action, data)
+	ins, rateLimitInfo, err := u.service.anyRequest(new(LegalUser), action, data)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	serv := u.service
 	*u = *(ins.(*LegalUser))
 	u.service = serv
-	return nil
+	return rateLimitInfo, nil
 }
 
 // LegalUser finds a legal user using the user_id attribute.
-func (m *MangoPay) LegalUser(id string) (*LegalUser, error) {
+func (m *MangoPay) LegalUser(id string) (*LegalUser, *RateLimitInfo, error) {
 	u := new(LegalUser)
-	ins, _, err := m.anyRequest(u, actionFetchLegalUser, JsonObject{"Id": id})
+	ins, rateLimitInfo, err := m.anyRequest(u, actionFetchLegalUser, JsonObject{"Id": id})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	lu := ins.(*LegalUser)
 	lu.service = m
-	return lu, nil
+	return lu, rateLimitInfo, nil
 }

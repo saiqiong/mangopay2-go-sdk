@@ -12,7 +12,7 @@ func TestWalletSave(test *testing.T) {
 func createTestWallet(test *testing.T, serv *MangoPay, user *NaturalUser) *Wallet {
 	if user == nil {
 		user = createTestUser(serv)
-		if err := user.Save(); err != nil {
+		if _, err := user.Save(); err != nil {
 			test.Fatal("Unable to store user", err)
 		}
 	}

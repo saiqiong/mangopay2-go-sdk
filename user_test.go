@@ -9,7 +9,7 @@ func TestNaturalUserSave(test *testing.T) {
 	serv := newTestService(test)
 	user := createTestUser(serv)
 	test.Log("Storing user...")
-	if err := user.Save(); err != nil {
+	if _, err := user.Save(); err != nil {
 		test.Fatal("Unable to save user:", err)
 	}
 	test.Log("Fetching user...", user.Id)

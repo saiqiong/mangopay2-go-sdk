@@ -10,7 +10,7 @@ import (
 func TestKYC(test *testing.T) {
 	serv := newTestService(test)
 	user := createTestUser(serv)
-	if err := user.Save(); err != nil {
+	if _, err := user.Save(); err != nil {
 		test.Fatal("Unable to store user:", err)
 	}
 	doc, err := serv.NewDocument(user, IdentityProof, "Tag1")

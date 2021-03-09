@@ -12,7 +12,7 @@ const (
 func TestBankAccount_Save(test *testing.T) {
 	serv := newTestService(test)
 	user := createTestUser(serv)
-	if err := user.Save(); err != nil {
+	if _, err := user.Save(); err != nil {
 		test.Fatal("Unable to store user:", err)
 	}
 
