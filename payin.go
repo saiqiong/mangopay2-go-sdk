@@ -359,17 +359,17 @@ func (p *PayIn) CancelledByUser() bool {
 }
 
 // PayIn finds a payment.
-func (m *MangoPay) PayIn(id string) (*WebPayIn, error) {
-	p, _, err := m.anyRequest(new(WebPayIn), actionFetchPayIn, JsonObject{"Id": id})
+func (m *MangoPay) PayIn(id string) (*WebPayIn, *RateLimitInfo, error) {
+	p, rateLimitInfo, err := m.anyRequest(new(WebPayIn), actionFetchPayIn, JsonObject{"Id": id})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	payIn := *(p.(*WebPayIn))
 	payIn.service = m
 	payIn.PayIn.service = m
 
-	return &payIn, nil
+	return &payIn, rateLimitInfo, nil
 }
 
 func (m *MangoPay) NewBankwireDirectPayIn(author Consumer, credited *Wallet, amount, fees Money) (*BankwireDirectPayIn, error) {
