@@ -21,7 +21,7 @@ func createTestWallet(test *testing.T, serv *MangoPay, user *NaturalUser) *Walle
 	if err != nil {
 		test.Fatal("Unable to create wallet:", err)
 	}
-	if err := wallet.Save(); err != nil {
+	if _, err := wallet.Save(); err != nil {
 		test.Fatal("Unable to store wallet:", err)
 	}
 	return wallet

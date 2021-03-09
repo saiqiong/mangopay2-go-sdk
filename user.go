@@ -18,7 +18,7 @@ const (
 // more wallets and tranfers.
 type Consumer interface {
 	// All user's wallets
-	Wallets() (WalletList, error)
+	Wallets() (WalletList, *RateLimitInfo, error)
 	// All user's transactions
 	Transfers() (TransferList, error)
 }

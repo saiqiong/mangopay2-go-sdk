@@ -71,7 +71,7 @@ func (m *MangoPay) NewWallet(owners ConsumerList, desc string, currency string) 
 // Save creates or updates a legal user. The Create API is used
 // if the user's Id is an empty string. The Edit API is used when
 // the Id is a non-empty string.
-func (w *Wallet) Save() error {
+func (w *Wallet) Save() (*RateLimitInfo, error) {
 	var action mangoAction
 	if w.Id == "" {
 		action = actionCreateWallet
@@ -82,10 +82,10 @@ func (w *Wallet) Save() error {
 	data := JsonObject{}
 	j, err := json.Marshal(w)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := json.Unmarshal(j, &data); err != nil {
-		return err
+		return nil, err
 	}
 
 	// Force float64 to int conversion after unmarshalling.
@@ -117,14 +117,14 @@ func (w *Wallet) Save() error {
 		}
 	}
 
-	wallet, _, err := w.service.anyRequest(new(Wallet), action, data)
+	wallet, rateLimitInfo, err := w.service.anyRequest(new(Wallet), action, data)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	serv := w.service
 	*w = *(wallet.(*Wallet))
 	w.service = serv
-	return nil
+	return rateLimitInfo, nil
 }
 
 // Transactions returns a wallet's transactions.
@@ -137,29 +137,29 @@ func (w *Wallet) Transactions() (TransferList, error) {
 }
 
 // Wallet finds a legal user using the user_id attribute.
-func (m *MangoPay) Wallet(id string) (*Wallet, error) {
-	w, _, err := m.anyRequest(new(Wallet), actionFetchWallet, JsonObject{"Id": id})
+func (m *MangoPay) Wallet(id string) (*Wallet, *RateLimitInfo, error) {
+	w, rateLimitInfo, err := m.anyRequest(new(Wallet), actionFetchWallet, JsonObject{"Id": id})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	wallet := w.(*Wallet)
 	wallet.service = m
-	return wallet, nil
+	return wallet, rateLimitInfo, nil
 }
 
-func (m *MangoPay) wallets(u Consumer) (WalletList, error) {
+func (m *MangoPay) wallets(u Consumer) (WalletList, *RateLimitInfo, error) {
 	id := consumerId(u)
 	if id == "" {
-		return nil, errors.New("user has empty Id")
+		return nil, nil, errors.New("user has empty Id")
 	}
-	trs, _, err := m.anyRequest(new(WalletList), actionFetchUserWallets, JsonObject{"Id": id})
+	trs, rateLimitInfo, err := m.anyRequest(new(WalletList), actionFetchUserWallets, JsonObject{"Id": id})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return *(trs.(*WalletList)), nil
+	return *(trs.(*WalletList)), rateLimitInfo, nil
 }
 
 // Wallet finds all user's wallets. Provided for convenience.
-func (m *MangoPay) Wallets(user Consumer) (WalletList, error) {
+func (m *MangoPay) Wallets(user Consumer) (WalletList, *RateLimitInfo, error) {
 	return m.wallets(user)
 }
