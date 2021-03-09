@@ -89,7 +89,7 @@ func (p *PayOut) Save() error {
 		delete(data, field)
 	}
 
-	pay, err := p.service.anyRequest(new(PayOut), actionCreatePayOut, data)
+	pay, _, err := p.service.anyRequest(new(PayOut), actionCreatePayOut, data)
 	if err != nil {
 		return err
 	}
@@ -105,7 +105,7 @@ func (p *PayOut) Save() error {
 
 // PayOut finds a bank wire.
 func (m *MangoPay) PayOut(id string) (*PayOut, error) {
-	p, err := m.anyRequest(new(PayOut), actionFetchPayOut, JsonObject{"Id": id})
+	p, _, err := m.anyRequest(new(PayOut), actionFetchPayOut, JsonObject{"Id": id})
 	if err != nil {
 		return nil, err
 	}

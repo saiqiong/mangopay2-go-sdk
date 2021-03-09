@@ -107,7 +107,7 @@ func (u *LegalUser) Save() error {
 		}
 	}
 
-	ins, err := u.service.anyRequest(new(LegalUser), action, data)
+	ins, _, err := u.service.anyRequest(new(LegalUser), action, data)
 	if err != nil {
 		return err
 	}
@@ -120,7 +120,7 @@ func (u *LegalUser) Save() error {
 // LegalUser finds a legal user using the user_id attribute.
 func (m *MangoPay) LegalUser(id string) (*LegalUser, error) {
 	u := new(LegalUser)
-	ins, err := m.anyRequest(u, actionFetchLegalUser, JsonObject{"Id": id})
+	ins, _, err := m.anyRequest(u, actionFetchLegalUser, JsonObject{"Id": id})
 	if err != nil {
 		return nil, err
 	}

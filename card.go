@@ -66,7 +66,7 @@ func (c *Card) String() string {
 
 // Card fetches a registered credit card.
 func (m *MangoPay) Card(id string) (*Card, error) {
-	any, err := m.anyRequest(new(Card), actionFetchCard, JsonObject{"Id": id})
+	any, _, err := m.anyRequest(new(Card), actionFetchCard, JsonObject{"Id": id})
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ func (c *CardRegistration) Init() error {
 		delete(data, field)
 	}
 
-	cr, err := c.service.anyRequest(new(CardRegistration), actionCreateCardRegistration, data)
+	cr, _, err := c.service.anyRequest(new(CardRegistration), actionCreateCardRegistration, data)
 	if err != nil {
 		return err
 	}
@@ -205,7 +205,7 @@ func (c *CardRegistration) Register(registrationData string) error {
 	if !c.isInitialized {
 		return errors.New("card registration process not initialized. Did you call Init() first?")
 	}
-	cr, err := c.service.anyRequest(new(CardRegistration),
+	cr, _, err := c.service.anyRequest(new(CardRegistration),
 		actionSendCardRegistrationData, JsonObject{"Id": c.Id,
 			"RegistrationData": registrationData})
 	if err != nil {

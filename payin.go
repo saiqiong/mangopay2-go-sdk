@@ -179,14 +179,14 @@ func (m *MangoPay) NewWebPayIn(author Consumer, amount Money, fees Money, credit
 
 // Save sends an HTTP query to create a payIn. Upon successful creation,
 // it may return an ErrPayInFailed error if the payment has failed.
-func (t *WebPayIn) Save() error {
+func (t *WebPayIn) Save() (*RateLimitInfo, error) {
 	data := JsonObject{}
 	j, err := json.Marshal(t)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := json.Unmarshal(j, &data); err != nil {
-		return err
+		return nil, err
 	}
 
 	// Force float64 to int conversion after unmarshalling.
@@ -199,9 +199,9 @@ func (t *WebPayIn) Save() error {
 		delete(data, field)
 	}
 
-	tr, err := t.service.anyRequest(new(WebPayIn), actionCreateWebPayIn, data)
+	tr, rateLimitInfo, err := t.service.anyRequest(new(WebPayIn), actionCreateWebPayIn, data)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	serv := t.service
 	*t = *(tr.(*WebPayIn))
@@ -209,9 +209,9 @@ func (t *WebPayIn) Save() error {
 	t.PayIn.service = serv
 
 	if t.Status == "FAILED" {
-		return &ErrPayInFailed{t.Id, t.ResultMessage, t.ResultCode}
+		return nil, &ErrPayInFailed{t.Id, t.ResultMessage, t.ResultCode}
 	}
-	return nil
+	return rateLimitInfo, nil
 }
 
 // NewDirectPayIn creates a direct payment from a tokenized credit card.
@@ -306,7 +306,7 @@ func (p *DirectPayIn) Save() error {
 		delete(data, field)
 	}
 
-	tr, err := p.service.anyRequest(new(DirectPayIn), actionCreateDirectPayIn, data)
+	tr, _, err := p.service.anyRequest(new(DirectPayIn), actionCreateDirectPayIn, data)
 	if err != nil {
 		return err
 	}
@@ -360,7 +360,7 @@ func (p *PayIn) CancelledByUser() bool {
 
 // PayIn finds a payment.
 func (m *MangoPay) PayIn(id string) (*WebPayIn, error) {
-	p, err := m.anyRequest(new(WebPayIn), actionFetchPayIn, JsonObject{"Id": id})
+	p, _, err := m.anyRequest(new(WebPayIn), actionFetchPayIn, JsonObject{"Id": id})
 	if err != nil {
 		return nil, err
 	}
@@ -432,7 +432,7 @@ func (t *BankwireDirectPayIn) Save() error {
 		delete(data, field)
 	}
 
-	tr, err := t.service.anyRequest(new(BankwireDirectPayIn), actionCreateBankwireDirectPayIn, data)
+	tr, _, err := t.service.anyRequest(new(BankwireDirectPayIn), actionCreateBankwireDirectPayIn, data)
 	if err != nil {
 		return err
 	}
@@ -521,7 +521,7 @@ func (t *DirectDebitWebPayIn) Save() error {
 		delete(data, field)
 	}
 
-	tr, err := t.service.anyRequest(new(DirectDebitWebPayIn), actionCreateDirectDebitWebPayIn, data)
+	tr, _, err := t.service.anyRequest(new(DirectDebitWebPayIn), actionCreateDirectDebitWebPayIn, data)
 	if err != nil {
 		return err
 	}

@@ -39,7 +39,7 @@ const (
 )
 
 func (m *MangoPay) Document(id string) (*Document, error) {
-	any, err := m.anyRequest(new(Document), actionFetchKYCDocument, JsonObject{"Id": id})
+	any, _, err := m.anyRequest(new(Document), actionFetchKYCDocument, JsonObject{"Id": id})
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (m *MangoPay) NewDocument(user Consumer, docType DocumentType, tag string) 
 		data["Tag"] = tag
 	}
 
-	doc, err := m.anyRequest(new(Document), actionCreateKYCDocument, data)
+	doc, _, err := m.anyRequest(new(Document), actionCreateKYCDocument, data)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (m *MangoPay) Documents(user Consumer) (DocumentList, error) {
 		action = actionFetchUserKYCDocuments
 	}
 
-	list, err := m.anyRequest(new(DocumentList), action, data)
+	list, _, err := m.anyRequest(new(DocumentList), action, data)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (d *Document) Submit(status DocumentStatus, tag string) error {
 		data["Tag"] = tag
 	}
 
-	doc, err := d.service.anyRequest(new(Document), actionSubmitKYCDocument, data)
+	doc, _, err := d.service.anyRequest(new(Document), actionSubmitKYCDocument, data)
 	if err != nil {
 		return err
 	}
@@ -131,6 +131,6 @@ func (d *Document) CreatePage(file []byte) error {
 		"File":   base64.StdEncoding.EncodeToString(file),
 	}
 
-	_, err := d.service.anyRequest(new(JsonObject), actionCreateKYCPage, data)
+	_, _, err := d.service.anyRequest(new(JsonObject), actionCreateKYCPage, data)
 	return err
 }

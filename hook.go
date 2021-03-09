@@ -69,7 +69,7 @@ func (h *Hook) Save() error {
 		}
 	}
 
-	hook, err := h.service.anyRequest(new(Hook), action, data)
+	hook, _, err := h.service.anyRequest(new(Hook), action, data)
 	if err != nil {
 		return err
 	}
@@ -80,7 +80,7 @@ func (h *Hook) Save() error {
 }
 
 func (m *MangoPay) Hook(id string) (*Hook, error) {
-	h, err := m.anyRequest(new(Hook), actionFetchHook, JsonObject{"Id": id})
+	h, _, err := m.anyRequest(new(Hook), actionFetchHook, JsonObject{"Id": id})
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func (m *MangoPay) HookByEventType(eventType EventType) (*Hook, error) {
 }
 
 func (m *MangoPay) Hooks() (HookList, error) {
-	list, err := m.anyRequest(new(HookList), actionFetchAllHooks, nil)
+	list, _, err := m.anyRequest(new(HookList), actionFetchAllHooks, nil)
 	if err != nil {
 		return nil, err
 	}

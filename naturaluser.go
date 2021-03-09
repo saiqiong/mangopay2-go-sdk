@@ -114,7 +114,7 @@ func (u *NaturalUser) Save() error {
 		}
 	}
 
-	user, err := u.service.anyRequest(new(NaturalUser), action, data)
+	user, _, err := u.service.anyRequest(new(NaturalUser), action, data)
 	if err != nil {
 		return err
 	}
@@ -126,7 +126,7 @@ func (u *NaturalUser) Save() error {
 
 // NaturalUser finds a natural user using the user_id attribute.
 func (m *MangoPay) NaturalUser(id string) (*NaturalUser, error) {
-	u, err := m.anyRequest(new(NaturalUser), actionFetchNaturalUser, JsonObject{"Id": id})
+	u, _, err := m.anyRequest(new(NaturalUser), actionFetchNaturalUser, JsonObject{"Id": id})
 	if err != nil {
 		return nil, err
 	}

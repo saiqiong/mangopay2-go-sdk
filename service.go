@@ -56,6 +56,12 @@ var DefaultClient = &http.Client{
 	},
 }
 
+type RateLimitInfo struct {
+	CallsMade       string
+	RemainingCalls  string
+	TimeLeftToReset string
+}
+
 // The Mangopay service.
 type MangoPay struct {
 	clientId   string // MangoPay partner ID
@@ -254,13 +260,13 @@ func (m *MangoPay) unMarshalJSONResponse(resp *http.Response, v interface{}) err
 }
 
 // Generic request for any object.
-func (m *MangoPay) anyRequest(o interface{}, action mangoAction, data JsonObject) (interface{}, error) {
+func (m *MangoPay) anyRequest(o interface{}, action mangoAction, data JsonObject) (interface{}, *RateLimitInfo, error) {
 	resp, err := m.request(action, data)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if resp.StatusCode == http.StatusNoContent {
-		return nil, nil
+		return nil, nil, nil
 	}
 
 	t := reflect.TypeOf(o)
@@ -270,9 +276,20 @@ func (m *MangoPay) anyRequest(o interface{}, action mangoAction, data JsonObject
 	}
 	ins := reflect.New(t).Interface()
 	if err := m.unMarshalJSONResponse(resp, ins); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return ins, nil
+
+	callsMade := resp.Header.Get("X-RateLimit")
+	remainingCalls := resp.Header.Get("X-RateLimit-Remaining")
+	timeLeftToReset := resp.Header.Get("X-RateLimit-Reset")
+
+	rateLimitInfo := RateLimitInfo{
+		CallsMade:       callsMade,
+		RemainingCalls:  remainingCalls,
+		TimeLeftToReset: timeLeftToReset,
+	}
+
+	return ins, &rateLimitInfo, nil
 }
 
 func unixTimeToString(t int64) string {

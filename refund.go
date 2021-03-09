@@ -97,7 +97,7 @@ func (r *Refund) save() error {
 		data["PayInId"] = r.payIn.Id
 		service = r.payIn.service
 	}
-	ins, err := service.anyRequest(new(Refund), action, data)
+	ins, _, err := service.anyRequest(new(Refund), action, data)
 	if err != nil {
 		return err
 	}
@@ -109,7 +109,7 @@ func (r *Refund) save() error {
 
 // Refund fetches a refund (tranfer or payin).
 func (m *MangoPay) Refund(id string) (*Refund, error) {
-	any, err := m.anyRequest(new(Refund), actionFetchRefund, JsonObject{"Id": id})
+	any, _, err := m.anyRequest(new(Refund), actionFetchRefund, JsonObject{"Id": id})
 	if err != nil {
 		return nil, err
 	}

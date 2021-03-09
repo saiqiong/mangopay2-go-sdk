@@ -136,7 +136,7 @@ func (t *Transfer) Save() error {
 		delete(data, field)
 	}
 
-	tr, err := t.service.anyRequest(new(Transfer), actionCreateTransfer, data)
+	tr, _, err := t.service.anyRequest(new(Transfer), actionCreateTransfer, data)
 	if err != nil {
 		return err
 	}
@@ -152,7 +152,7 @@ func (t *Transfer) Save() error {
 
 // Transfer finds a transaction by id.
 func (m *MangoPay) Transfer(id string) (*Transfer, error) {
-	w, err := m.anyRequest(new(Transfer), actionFetchTransfer, JsonObject{"Id": id})
+	w, _, err := m.anyRequest(new(Transfer), actionFetchTransfer, JsonObject{"Id": id})
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +170,7 @@ func (m *MangoPay) transfers(u Consumer) (TransferList, error) {
 	if id == "" {
 		return nil, errors.New("user has empty Id")
 	}
-	trs, err := m.anyRequest(new(TransferList), actionFetchUserTransfers, JsonObject{"Id": id})
+	trs, _, err := m.anyRequest(new(TransferList), actionFetchUserTransfers, JsonObject{"Id": id})
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +188,7 @@ func (m *MangoPay) transactions(u Consumer) (TransactionList, error) {
 	if id == "" {
 		return nil, errors.New("user has empty Id")
 	}
-	trs, err := m.anyRequest(new(TransactionList), actionFetchUserTransfers, JsonObject{"Id": id})
+	trs, _, err := m.anyRequest(new(TransactionList), actionFetchUserTransfers, JsonObject{"Id": id})
 	if err != nil {
 		return nil, err
 	}

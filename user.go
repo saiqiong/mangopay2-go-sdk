@@ -71,7 +71,7 @@ func (m *MangoPay) UsersPaginated(page, maxPerPage int) (UserList, error) {
 
 // User fetch a user (natural or legal) using the Id attribute.
 func (m *MangoPay) User(id string) (*User, error) {
-	u, err := m.anyRequest(new(User), actionFetchUser, JsonObject{"Id": id})
+	u, _, err := m.anyRequest(new(User), actionFetchUser, JsonObject{"Id": id})
 	if err != nil {
 		return nil, err
 	}
