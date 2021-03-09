@@ -101,29 +101,32 @@ func (m *MangoPay) NewTransfer(author Consumer, amount Money, fees Money, from, 
 	return t, nil
 }
 
-func (t *Transfer) Refund() (*Refund, error) {
+func (t *Transfer) Refund() (*Refund, *RateLimitInfo, error) {
 	r := &Refund{
 		ProcessReply: ProcessReply{},
 		transfer:     t,
 		kind:         transferRefund,
 	}
-	if err := r.save(); err != nil {
-		return nil, err
+
+	rateLimitInfo, err := r.save()
+	if err != nil {
+		return nil, nil, err
 	}
-	return r, nil
+
+	return r, rateLimitInfo, nil
 }
 
 // Save sends an HTTP query to create a transfer. Upon successful creation,
 // it may return an ErrTransferFailed error if the transaction has been
 // rejected (unsufficient wallet balance for example).
-func (t *Transfer) Save() error {
+func (t *Transfer) Save() (*RateLimitInfo, error) {
 	data := JsonObject{}
 	j, err := json.Marshal(t)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := json.Unmarshal(j, &data); err != nil {
-		return err
+		return nil, err
 	}
 
 	// Force float64 to int conversion after unmarshalling.
@@ -136,61 +139,59 @@ func (t *Transfer) Save() error {
 		delete(data, field)
 	}
 
-	tr, _, err := t.service.anyRequest(new(Transfer), actionCreateTransfer, data)
+	tr, rateLimitInfo, err := t.service.anyRequest(new(Transfer), actionCreateTransfer, data)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	serv := t.service
 	*t = *(tr.(*Transfer))
 	t.service = serv
 
 	if t.Status == "FAILED" {
-		return &ErrTransferFailed{t.Id, t.ResultMessage}
+		return nil, &ErrTransferFailed{t.Id, t.ResultMessage}
 	}
-	return nil
+	return rateLimitInfo, nil
 }
 
 // Transfer finds a transaction by id.
-func (m *MangoPay) Transfer(id string) (*Transfer, error) {
-	w, _, err := m.anyRequest(new(Transfer), actionFetchTransfer, JsonObject{"Id": id})
+func (m *MangoPay) Transfer(id string) (*Transfer, *RateLimitInfo, error) {
+	w, rateLimitInfo, err := m.anyRequest(new(Transfer), actionFetchTransfer, JsonObject{"Id": id})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return w.(*Transfer), nil
+	return w.(*Transfer), rateLimitInfo, nil
 }
 
 // Transfer finds all user's transactions. Provided for convenience.
-func (m *MangoPay) Transfers(user Consumer) (TransferList, error) {
-	trs, err := m.transfers(user)
-	return trs, err
+func (m *MangoPay) Transfers(user Consumer) (TransferList, *RateLimitInfo, error) {
+	return m.transfers(user)
 }
 
-func (m *MangoPay) transfers(u Consumer) (TransferList, error) {
+func (m *MangoPay) transfers(u Consumer) (TransferList, *RateLimitInfo, error) {
 	id := consumerId(u)
 	if id == "" {
-		return nil, errors.New("user has empty Id")
+		return nil, nil, errors.New("user has empty Id")
 	}
-	trs, _, err := m.anyRequest(new(TransferList), actionFetchUserTransfers, JsonObject{"Id": id})
+	trs, rateLimitInfo, err := m.anyRequest(new(TransferList), actionFetchUserTransfers, JsonObject{"Id": id})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return *(trs.(*TransferList)), nil
+	return *(trs.(*TransferList)), rateLimitInfo, nil
 }
 
 // Transfer finds all user's transactions. Provided for convenience.
-func (m *MangoPay) Transactions(user Consumer) (TransactionList, error) {
-	trs, err := m.transactions(user)
-	return trs, err
+func (m *MangoPay) Transactions(user Consumer) (TransactionList, *RateLimitInfo, error) {
+	return m.transactions(user)
 }
 
-func (m *MangoPay) transactions(u Consumer) (TransactionList, error) {
+func (m *MangoPay) transactions(u Consumer) (TransactionList, *RateLimitInfo, error) {
 	id := consumerId(u)
 	if id == "" {
-		return nil, errors.New("user has empty Id")
+		return nil, nil, errors.New("user has empty Id")
 	}
-	trs, _, err := m.anyRequest(new(TransactionList), actionFetchUserTransfers, JsonObject{"Id": id})
+	trs, rateLimitInfo, err := m.anyRequest(new(TransactionList), actionFetchUserTransfers, JsonObject{"Id": id})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return *(trs.(*TransactionList)), nil
+	return *(trs.(*TransactionList)), rateLimitInfo, nil
 }

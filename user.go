@@ -20,7 +20,7 @@ type Consumer interface {
 	// All user's wallets
 	Wallets() (WalletList, *RateLimitInfo, error)
 	// All user's transactions
-	Transfers() (TransferList, error)
+	Transfers() (TransferList, *RateLimitInfo, error)
 }
 
 type UserList []*User

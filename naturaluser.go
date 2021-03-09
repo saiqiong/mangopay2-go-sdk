@@ -50,15 +50,13 @@ func (u *NaturalUser) Wallets() (WalletList, *RateLimitInfo, error) {
 }
 
 // Transfer gets all user's transaction.
-func (u *NaturalUser) Transfers() (TransferList, error) {
-	trs, err := u.service.transfers(u)
-	return trs, err
+func (u *NaturalUser) Transfers() (TransferList, *RateLimitInfo, error) {
+	return u.service.transfers(u)
 }
 
 // Transfer gets all user's transaction.
-func (u *NaturalUser) Transactions() (TransactionList, error) {
-	trs, err := u.service.transactions(u)
-	return trs, err
+func (u *NaturalUser) Transactions() (TransactionList, *RateLimitInfo, error) {
+	return u.service.transactions(u)
 }
 
 // Save creates or updates a natural user. The Create API is used

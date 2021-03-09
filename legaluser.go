@@ -54,9 +54,8 @@ func (u *LegalUser) Wallets() (WalletList, *RateLimitInfo, error) {
 }
 
 // Transfer gets all user's transaction.
-func (u *LegalUser) Transfers() (TransferList, error) {
-	trs, err := u.service.transfers(u)
-	return trs, err
+func (u *LegalUser) Transfers() (TransferList, *RateLimitInfo, error) {
+	return u.service.transfers(u)
 }
 
 // Save creates or updates a legal user. The Create API is used

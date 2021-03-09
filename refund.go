@@ -62,14 +62,14 @@ func (r *Refund) String() string {
 }
 
 // Save creates a refund.
-func (r *Refund) save() error {
+func (r *Refund) save() (*RateLimitInfo, error) {
 	data := JsonObject{}
 	j, err := json.Marshal(r)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := json.Unmarshal(j, &data); err != nil {
-		return err
+		return nil, err
 	}
 
 	// Force float64 to int conversion after unmarshalling.
@@ -97,21 +97,21 @@ func (r *Refund) save() error {
 		data["PayInId"] = r.payIn.Id
 		service = r.payIn.service
 	}
-	ins, _, err := service.anyRequest(new(Refund), action, data)
+	ins, rateLimitInfo, err := service.anyRequest(new(Refund), action, data)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	t, p, k := r.transfer, r.payIn, r.kind
 	*r = *(ins.(*Refund))
 	r.transfer, r.payIn, r.kind = t, p, k
-	return nil
+	return rateLimitInfo, nil
 }
 
 // Refund fetches a refund (tranfer or payin).
-func (m *MangoPay) Refund(id string) (*Refund, error) {
-	any, _, err := m.anyRequest(new(Refund), actionFetchRefund, JsonObject{"Id": id})
+func (m *MangoPay) Refund(id string) (*Refund, *RateLimitInfo, error) {
+	any, rateLimitInfo, err := m.anyRequest(new(Refund), actionFetchRefund, JsonObject{"Id": id})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return any.(*Refund), nil
+	return any.(*Refund), rateLimitInfo, nil
 }

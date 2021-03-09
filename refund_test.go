@@ -14,7 +14,7 @@ func TestRefund(test *testing.T) {
 	wallet := createTestWallet(test, serv, user)
 
 	payin := createTestDirectDebitWebPayIn(test, serv, user, EUR100, EUR0, wallet)
-	_, err := payin.Refund()
+	_, _, err := payin.Refund()
 	if err != nil {
 		// TODO: obtain succeeded transaction to test refund
 		// Now ignore 'must have a SUCCEEDED Status' error

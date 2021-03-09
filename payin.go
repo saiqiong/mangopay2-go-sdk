@@ -323,21 +323,22 @@ func (p *DirectPayIn) Save() error {
 
 // Refund allows to refund a pay-in. Call the Refund's Save() method
 // to make a request to reimburse a user on his payment card.
-func (p *PayIn) Refund() (*Refund, error) {
+func (p *PayIn) Refund() (*Refund, *RateLimitInfo, error) {
 	r := &Refund{
 		ProcessReply: ProcessReply{},
 		payIn:        p,
 		kind:         payInRefund,
 	}
-	if err := r.save(); err != nil {
-		return nil, err
+	rateLimitInfo, err := r.save()
+	if err != nil {
+		return nil, nil, err
 	}
-	return r, nil
+	return r, rateLimitInfo, nil
 }
 
 // PartialRefund allows to refund partially a pay-in. Call the PartialRefund's Save() method
 // to make a request to reimburse a user on his payment card.
-func (p *PayIn) PartialRefund(debitedFunds Money, fees Money, tag string) (*Refund, error) {
+func (p *PayIn) PartialRefund(debitedFunds Money, fees Money, tag string) (*Refund, *RateLimitInfo, error) {
 	r := &Refund{
 		ProcessReply: ProcessReply{
 			ProcessIdent: ProcessIdent{Tag: tag},
@@ -347,10 +348,13 @@ func (p *PayIn) PartialRefund(debitedFunds Money, fees Money, tag string) (*Refu
 		DebitedFunds: debitedFunds,
 		Fees:         fees,
 	}
-	if err := r.save(); err != nil {
-		return nil, err
+
+	rateLimitInfo, err := r.save()
+	if err != nil {
+		return nil, nil, err
 	}
-	return r, nil
+
+	return r, rateLimitInfo, nil
 }
 
 // Cancelled returns true if the payment has been cancelled by user.
