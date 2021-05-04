@@ -80,7 +80,7 @@ func (e *ErrPayInFailed) Error() string {
 }
 
 type TemplateUrlOptions struct {
-	Payline string `json:"PAYLINE"`
+	PaylineV2 string `json:"PAYLINEV2"`
 }
 
 // PayIn holds common fields to all MangoPay's supported payment means
