@@ -64,6 +64,15 @@ func (c *Card) String() string {
 	return struct2string(c)
 }
 
+//  Deactivated a registered credit card, once deactivated, a card can't be reactivated afterwards
+func (m *MangoPay) DeactivateCard(id string) error {
+	_, _, err := m.anyRequest(new(Card), actionDeactivateCard, JsonObject{"Id": id})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // Card fetches a registered credit card.
 func (m *MangoPay) Card(id string) (*Card, error) {
 	any, _, err := m.anyRequest(new(Card), actionFetchCard, JsonObject{"Id": id})
