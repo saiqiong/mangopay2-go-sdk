@@ -105,7 +105,18 @@ func (p *PayIn) String() string {
 	return struct2string(p)
 }
 
-// DirectPayIn is used to process a payment with registered (tokenized) cards.
+type PayInBrowserInfo struct {
+	AcceptHeader      string
+	JavaEnabled       bool
+	Language          string
+	ColorDepth        int
+	ScreenHeight      int
+	ScreenWidth       int
+	TimeZoneOffset    int
+	UserAgent         string
+	JavascriptEnabled bool
+}
+
 type DirectPayIn struct {
 	PayIn
 	SecureModeReturnUrl   string
@@ -113,12 +124,15 @@ type DirectPayIn struct {
 	CardId                string
 	DebitedWalletId       string
 	service               *MangoPay
+	IpAddress             string
+	BrowserInfo           PayInBrowserInfo
 }
 
 func (p *DirectPayIn) String() string {
 	return struct2string(p)
 }
 
+// DirectPayIn is used to process a payment with registered (tokenized) cards.s
 // WebPayIn hold details about making a payment through a web interface.
 //
 // See http://docs.mangopay.com/api-references/payins/payins-card-web/
@@ -223,9 +237,10 @@ func (t *WebPayIn) Save() (*RateLimitInfo, error) {
 //  - amount   : DebitedFunds value
 //  - fees     : Fees value
 //  - returnUrl: SecureModeReturnUrl value
-//
+//  - ipAddress: Client v4 or v6 ipadress  string
+//  - browserInfo: Client browser information
 // See http://docs.mangopay.com/api-references/payins/payindirectcard/
-func (m *MangoPay) NewDirectPayIn(from, to Consumer, src *Card, dst *Wallet, amount, fees Money, returnUrl string) (*DirectPayIn, error) {
+func (m *MangoPay) NewDirectPayIn(from, to Consumer, src *Card, dst *Wallet, amount, fees Money, returnUrl string, ipAddress string, browserInfo PayInBrowserInfo) (*DirectPayIn, error) {
 	msg := "new direct payIn: "
 	ps := []struct {
 		i   interface{}
@@ -276,6 +291,8 @@ func (m *MangoPay) NewDirectPayIn(from, to Consumer, src *Card, dst *Wallet, amo
 		},
 		SecureModeReturnUrl: u.String(),
 		CardId:              src.Id,
+		IpAddress:           ipAddress,
+		BrowserInfo:         browserInfo,
 	}
 	p.service = m
 	return p, nil
